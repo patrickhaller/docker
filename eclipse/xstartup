@@ -1,0 +1,8 @@
+#!/bin/bash
+xsetroot -solid grey
+
+eclipse &
+
+while true; do
+	twm
+done
