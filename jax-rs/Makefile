@@ -1,4 +1,4 @@
 hosts := docker
-rpath := /home/me/eclipse
+rpath := /home/me/jax-rs
 
 include Makefile.scp

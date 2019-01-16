@@ -99,7 +99,7 @@ menu "Defops" {
 
 menu "Apps" {
 	"Xterm"       f.exec "xterm &"
-	"Eclipse"       f.exec "eclipse &"
+	"Eclipse"       f.exec "/opt/eclipse/eclipse &"
 	""			  f.nop
 	"Kill"		f.destroy
 	"Restart"	  f.restart
