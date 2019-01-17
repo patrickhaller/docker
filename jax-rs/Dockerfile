@@ -1,3 +1,4 @@
+# https://www.theserverside.com/video/Step-by-step-RESTful-web-service-example-in-Java-using-Eclipse
 FROM sgswc/eclipse
 
 RUN apt-get update && apt-get install -y \
