@@ -1,15 +1,26 @@
 FROM ubuntu:cosmic
 
-RUN apt-get update && apt-get install --no-install-recommends -y \
+RUN apt-get update && apt-get install -y \
+	curl \
 	default-jre \
+	git \
+	gradle \
+	maven \
+	netcat \
+	socat \
+	sqlite3 \
 	tightvncserver \
 	twm \
+	unzip \
 	wget \
 	xterm \
 	&& apt-get clean && rm -rf /var/lib/apt/lists/*
 
+#RUN apt-get update && apt-get install --no-install-recommends -y \
+#	&& apt-get clean && rm -rf /var/lib/apt/lists/*
+
 #RUN wget -O /root/eclipse.tar.gz http://ftp.yz.yamagata-u.ac.jp/pub/eclipse/technology/epp/downloads/release/2018-12/R/eclipse-jee-2018-12-R-linux-gtk-x86_64.tar.gz
-RUN wget -O /root/eclipse.tar.gz http://www.ofs.edu.sg/user/patrick_haller/eclipse.tar.gz
+RUN wget -qO /root/eclipse.tar.gz http://www.ofs.edu.sg/user/patrick_haller/eclipse.tar.gz
 RUN tar zxf /root/eclipse.tar.gz -C /opt
 
 
