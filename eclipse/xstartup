@@ -1,6 +1,6 @@
 #!/bin/bash
 xsetroot -solid grey
-
+autocutsel -fork
 /opt/eclipse/eclipse &
 
 while true; do
