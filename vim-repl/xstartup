@@ -1,0 +1,7 @@
+#!/bin/bash
+xsetroot -solid grey
+autocutsel -fork
+
+while true; do
+	twm
+done

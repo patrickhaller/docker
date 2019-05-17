@@ -1,0 +1,153 @@
+colorscheme zellner
+set sw=4 ts=4 ai
+
+let g:tmux_vim_buffer = "/tmp/tmux-vim-buffer"
+let g:tmux_capture_buffer = "/tmp/tmux-capture-buffer"
+let g:tmux_layout = "selectl even-horizontal \\; resize-pane -R +10 "
+
+" to split windows, use "pane"
+" otherwise use another "session"
+if ! exists('g:tmux_mode')
+	let g:tmux_mode = "pane"
+endif
+
+" use #{pane_pid} to find vim and the repl target
+" tmux list-panes -F '#{pane_index} #{pane_pid}'
+
+function! s:Tmux_Cmd(cmd)
+	let cmd = "tmux " . a:cmd
+	call system( cmd )
+endfunction
+
+function! s:Tmux_Send()
+	if g:tmux_mode == "pane"
+		call s:Tmux_Cmd("load-buffer " . g:tmux_vim_buffer . " \\; paste-buffer -t 1")
+	endif
+	if g:tmux_mode == "session"
+	call s:Tmux_Cmd("load-buffer " . g:tmux_vim_buffer . " \\; paste-buffer -t repl")
+	endif
+endfunction
+
+function! Tmux_Ctrl(char)
+	if g:tmux_mode == "pane"
+		call s:Tmux_Cmd('send-key -t 1 C-' . a:char)
+	endif
+	if g:tmux_mode == "session"
+		call s:Tmux_Cmd('send-key -t repl C-' . a:char)
+	endif
+endfunction
+
+function! Tmux_Container_Exit()
+	call Tmux_Ctrl("]")
+	call Tmux_Ctrl("]")
+	call Tmux_Ctrl("]")
+endfunction
+
+function! Tmux_Push_Register(reg)
+	let txt = strtrans(getreg(a:reg))
+	let txt = substitute(txt, '\^I', '\t', 'g')
+	call writefile(split(txt, '\^@'), g:tmux_vim_buffer)
+	call s:Tmux_Send()
+endfunction
+
+function! Tmux_Send_String(s)
+	call writefile([a:s], g:tmux_vim_buffer)
+	call s:Tmux_Send()
+endfunction
+command! -range -nargs=0 S call Tmux_Exec(<line1>,<line2>)
+
+function! Tmux_Exec(fl,ll) range
+	call writefile( getline(a:fl, a:ll), g:tmux_vim_buffer)
+	call s:Tmux_Send()
+endfunction
+command! -range -nargs=0 S call Tmux_Exec(<line1>,<line2>)
+
+function! Tmux_Repl(new)
+	if a:new == "n"
+		if g:tmux_mode == "pane"
+			let cmd="split-window -d -h -t 0 "
+		endif
+		if g:tmux_mode == "session"
+			let cmd="new-window -t repl "
+		endif
+	else
+		if g:tmux_mode == "pane"
+			let cmd="join-pane -d -h -s 0:" . a:new . ".0 "
+		endif
+		if g:tmux_mode == "session"
+			let cmd="select-window -t repl:" . a:new
+		endif
+	endif
+	if g:tmux_mode == "pane"
+		let cmd = cmd . " \\; break-pane -d -s 2 \\; " . g:tmux_layout
+	endif
+	call s:Tmux_Cmd(cmd)
+	redraw!
+endfunction
+command! -nargs=* J call Tmux_Repl(<f-args>)
+
+function! Tmux_Repl_Kill(w)
+	if g:tmux_mode == "pane"
+		call s:Tmux_Cmd("kill-window -t " . a:w)
+	endif
+	if g:tmux_mode == "session"
+		call s:Tmux_Cmd("kill-window -t repl:" . a:w)
+	endif
+endfunction
+command! -nargs=* JJ call Tmux_Repl_Kill(<f-args>)
+
+function! Tmux_Cap(...)
+	let file = g:tmux_capture_buffer
+	call system("rm " . file)
+	if g:tmux_mode == "pane"
+		call s:Tmux_Cmd("capture-pane -J -b 0 -t 0:0.1 \\; save-buffer -b 0 " . file )
+	endif
+	if g:tmux_mode == "session"
+		call s:Tmux_Cmd("capture-pane -J -b 0 -t repl \\; save-buffer -b 0 " . file )
+	endif
+	if (a:0)
+		if str2nr(a:1)
+			exec "read ! sed '/^$/d' " . file . " | tail -n " . a:1
+		elseif a:1 == "m"
+			exec "read ! ~/pkg/vim/tmux-mysql.sh " . file
+		elseif a:1 == "l"
+			exec "read ! sed '/^$/d' " . file . " | tac | sed -n 2p"
+		elseif a:1 == "ll"
+			exec "read ! sed '/^$/d' " . file . " | tac | sed -n 3p"
+		else
+			exec "read ! grep -i " . a:1 . " " . file
+		endif
+	else
+		exec "read " . file
+	endif
+endfunction
+command! -nargs=? SC call Tmux_Cap(<f-args>)
+
+
+
+
+
+nmap <buffer> <silent> S :call Tmux_Push_Register(0)<CR>
+
+nmap <buffer> <silent> T1 :call Tmux_Repl(1)<CR>
+nmap <buffer> <silent> T2 :call Tmux_Repl(2)<CR>
+nmap <buffer> <silent> T3 :call Tmux_Repl(3)<CR>
+nmap <buffer> <silent> T4 :call Tmux_Repl(4)<CR>
+nmap <buffer> <silent> T5 :call Tmux_Repl(5)<CR>
+nmap <buffer> <silent> T6 :call Tmux_Repl(6)<CR>
+nmap <buffer> <silent> T7 :call Tmux_Repl(7)<CR>
+nmap <buffer> <silent> T8 :call Tmux_Repl(8)<CR>
+nmap <buffer> <silent> T9 :call Tmux_Repl(9)<CR>
+nmap <buffer> <silent> TD :call Tmux_Ctrl('d')<CR>
+nmap <buffer> <silent> TE :call Tmux_Ctrl('m')<CR>
+nmap <buffer> <silent> TG :call Tmux_Ctrl('g')<CR>
+nmap <buffer> <silent> TL :call Tmux_Async_Register(0)<CR>
+nmap <buffer> <silent> TO :call Tmux_Send_String(";;\n")<CR>
+nmap <buffer> <silent> TQ :call Tmux_Send_String("q")<CR>
+nmap <buffer> <silent> TR :call Tmux_Reverse_Search()<CR>
+nmap <buffer> <silent> TT :call Tmux_Ctrl('c')<CR>
+nmap <buffer> <silent> TY :call Tmux_Send_String("Y\n")<CR>
+nmap <buffer> <silent> Tn :call Tmux_Repl('n')<CR>
+nmap <buffer> <silent> TS :call Tmux_Send_String(" ")<CR>
+nmap <buffer> <silent> TX :call Tmux_Container_Exit();<CR>
+

@@ -1,0 +1,107 @@
+#
+# TWM config file
+#
+#
+NoGrabServer
+RestartPreviousState
+DecorateTransients
+IconifyByUnmapping
+RandomPlacement
+AutoRelativeResize
+NoTitleHighlight
+NoTitleFocus
+SqueezeTitle {
+	"firefox" left 0 0
+	"xterm" right 0 0
+	"eclipse" right 0 0
+	"ssh-agent" right 0 0
+}
+
+Button1 = : root : f.menu "Apps"
+Button2 = : root : f.menu "Defops"
+Button3 = : root : f.menu "TwmWindows"
+
+Button1 =       : title  : f.function "move-or-raise"
+Button2 =       : title  : f.menu "Ops"
+Button3 =       : title  : f.menu "Ops"
+Button2 = shift : window : f.menu "Defops"
+Button3 = shift : window : f.raise
+
+"F1"    = meta  : window : f.raise
+"F4"    = meta  : window : f.iconify
+"Tab"   = meta  : all    : f.function "altTab"
+
+Function "move-or-raise" { f.move f.deltastop f.raise }
+Function "altTab" { f.circleup }
+
+
+Color {
+    #TitleBackground "rgb:2/a/9"
+    #IconManagerForeground "gray85"
+    BorderColor "black"
+    DefaultBackground "gray"
+    DefaultForeground "black"
+    TitleBackground "gray"
+    TitleForeground "black"
+    MenuBackground "gray"
+    MenuForeground "black"
+    MenuTitleBackground "gray"
+    MenuTitleForeground "black"
+    IconBackground "gray"
+    IconForeground "black"
+    IconBorderColor "gray"
+    IconManagerBackground "gray"
+    IconManagerForeground "black"
+}
+
+#
+# Only menus below here
+#
+
+menu "Ops" {
+	"Ops" 	f.title
+	"Iconify"	f.iconify
+	"Resize"	f.resize
+	"Move"		f.move
+	"Raise"		f.raise
+	"Lower"		f.lower
+	"Left"		f.leftzoom
+	"Right"		f.rightzoom
+	"Top"		f.topzoom
+	"Bottom"	f.bottomzoom
+	"Zoom"		f.zoom
+	""			f.nop
+	"Destroy"	f.destroy
+}
+
+menu "Defops" {
+	"Twm"	f.title
+	"Iconify"	f.iconify
+	"Resize"	f.resize
+	"Move"		f.move
+	"Raise"		f.raise
+	"Lower"		f.lower
+	""		f.nop
+	"Focus"		f.focus
+	"Unfocus"	f.unfocus
+	"Next" 		f.warptoscreen "next"
+	"Show Iconmgr"	f.showiconmgr
+	"Hide Iconmgr"	f.hideiconmgr
+	""		f.nop
+	"Xterm"		f.exec "exec xterm &"
+	""		f.nop
+	"Kill"		f.destroy
+	"Delete"	f.delete
+	""		f.nop
+	"Restart"	f.restart
+	"Exit"		f.quit
+}
+
+menu "Apps" {
+	"Xterm"       f.exec "xterm &"
+	"Tmux"       f.exec "xterm -e tmux &"
+	""			  f.nop
+	"Kill"		f.destroy
+	"Restart"	  f.restart
+	"Exit"		f.quit
+}
